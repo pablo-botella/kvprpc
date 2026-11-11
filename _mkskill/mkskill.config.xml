@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mkskill>
+  <version-spec params="major:byte,minor:[0-99],build:word">
+    <version major="0" minor="0" build="1" lock="major">
+      <ts>2026-11-11T12:00:00Z</ts>
+    </version>
+    <label key="title" volatile="true" default-to-ts="true">2026-11-11T12:00:00Z</label>
+    <create file="__publish.bat" git-ignore="true" eol="crlf">
+@echo off
+set TAG={$$$ version $$$}
+git rev-parse -q --verify refs/tags/%TAG% &gt;NUL 2&gt;&amp;1 &amp;&amp; goto :exists
+git ls-remote --exit-code --tags origin %TAG% &gt;NUL 2&gt;&amp;1 &amp;&amp; goto :exists
+git tag %TAG%
+git push origin main --tags
+exit /b 0
+:exists
+echo ERROR: tag %TAG% already exists - run -vinc first
+exit /b 1
+</create>
+  </version-spec>
+  <project id="main" name="microrpc" project-type="Go-Module">
+    <meta>
+      <module>github.com/pablo-botella/microrpc</module>
+      <license>MIT</license>
+      <description>Minimal RPC over HTTP for kvpack messages: a Go server that dispatches each request to the handler of its command, and clients that post a request and read the reply. One POST per call, body application/x-kvpack, errors as kvpack error replies on status 200. Typed handlers and calls on the structs the kvpack generator writes from a .kvp declaration. Use when a Go server exposes commands to Go, C or Harbour clients and gRPC is too much. Triggers on microrpc, application/x-kvpack over HTTP, or &#34;RPC between Go and C/Harbour&#34; tasks.</description>
+    </meta>
+  </project>
+</mkskill>

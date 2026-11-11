@@ -1,0 +1,35 @@
+# Release gate: runs when a v* tag lands, and only blesses tags that sit on
+# main. It regenerates the docs on a clean checkout (a stale committed
+# artifact fails the diff), then vets and tests. A library: nothing to
+# build or upload; the tag itself is the release for the Go module proxy.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history: the tag-on-main check needs origin/main
+
+      - name: tag must be on main
+        run: |
+          git merge-base --is-ancestor HEAD origin/main || {
+            echo "::error::tag ${GITHUB_REF_NAME} is not on main"; exit 1; }
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: docs are fresh
+        run: |
+          go generate ./...
+          git diff --exit-code || {
+            echo "::error::generated docs are stale - run: go generate ./..."; exit 1; }
+
+      - run: go vet ./...
+      - run: go test ./...

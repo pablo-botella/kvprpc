@@ -1,0 +1,11 @@
+# Test declaration for microrpc: a command with a reply, one without.
+command login = 1
+    user      text   = 1
+    password  text   = 2
+reply login
+    name      text   = 1
+    level     int32  = 2   optional
+
+command ping = 2
+reply ping
+    at        ts     = 1
